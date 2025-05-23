@@ -11,9 +11,9 @@ from pydantic import BaseModel, EmailStr, field_validator
 import settings
 
 
-#############################################
+############################################################
 # DATABASE BLOCK
-#############################################
+############################################################
 
 # create async engine for interaction with db
 engine = create_async_engine(settings.REAL_DATABASE_URL, echo=True)
@@ -22,9 +22,9 @@ engine = create_async_engine(settings.REAL_DATABASE_URL, echo=True)
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
-#############################################
+############################################################
 # BLOCK WITH DATABASE MODELS
-#############################################
+############################################################
 
 Base = declarative_base()
 
@@ -37,4 +37,33 @@ class User(Base):
     surname = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
     is_active = Column(Boolean(), default=True)
+
+
+############################################################
+# BLOCK FOR INTERACTION WITH DATABASE IN BUSSINES CONTEXT
+############################################################
+
+
+class UserDAL:
+    """Data Access Layer for operating user info"""
+    def __init__(self, db_session: AsyncSession):
+        self.db_session = db_session
     
+    async def create_user(
+        self, name: str, surname: str, email: str
+    ) -> User:
+        new_user = User(
+            name=name,
+            surname=surname,
+            email=email
+        )
+        self.db_session.add(new_user)
+        await self.db_session.flush()
+        return new_user
+    
+    
+############################################################
+# BLOCK WITH API MODELS
+############################################################
+
+
