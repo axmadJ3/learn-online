@@ -90,7 +90,8 @@ class UserCreate(BaseModel):
     surname: str
     email: EmailStr
     
-    @field_validator('name')
+    @field_validator('name', mode="before")
+    @classmethod
     def validate_name(cls, value):
         if not LETTER_MATCH_PATTERN.match(value):
             raise HTTPException(
@@ -98,7 +99,8 @@ class UserCreate(BaseModel):
             )
         return value
         
-    @field_validator('surname')
+    @field_validator('surname', mode="before")
+    @classmethod
     def validate_surname(cls, value):
         if not LETTER_MATCH_PATTERN.match(value):
             raise HTTPException(
